@@ -11,8 +11,13 @@ __all_ = [
 ]
 
 GRADE_CHOICES = Choices(
-    (1, 'Bachelor', 'Бакалавр'),
+    (7, 'Bachelor', 'Бакалавр'),
     (8, 'Master', 'Магістр'),
+)
+
+EDUCATION_FORM_CHOICES = Choices(
+    (0, 'FullTime', 'Денна'),
+    (1, 'PartTime', 'Заочна'),
 )
 
 SEMESTER_CHOICES = Choices(
@@ -34,33 +39,12 @@ class Faculty(models.Model):
         return f'{self.name}'
 
 
-class Department(models.Model):
+class Speciality(models.Model):
     name = models.CharField(max_length=255)
     faculty = models.ForeignKey(Faculty, on_delete=models.PROTECT)
 
     def __str__(self):
-        return f'{self.name}'
-
-
-class Speciality(models.Model):
-    name = models.CharField(max_length=255)
-    department = models.ForeignKey(Department, on_delete=models.PROTECT)
-
-    def __str__(self):
-        return f'{self.name} ({self.department})'
-
-
-class AcademicGroup(models.Model):
-    speciality = models.ForeignKey(Speciality, on_delete=models.PROTECT)
-    degree = models.IntegerField(choices=GRADE_CHOICES)
-    education_start = models.DateField()
-
-    def __str__(self):
-        return f'{self.speciality} [{self.degree}] - {self.course} курс'
-
-    @property
-    def course(self):  # TODO think about it
-        return None
+        return f'{self.name} ({self.faculty})'
 
 
 class Subject(models.Model):
@@ -71,14 +55,16 @@ class Subject(models.Model):
 
 
 class Student(models.Model):
-    last_name = models.CharField(max_length=255)
-    first_name = models.CharField(max_length=255)
-    middle_name = models.CharField(max_length=255, blank=True, null=True)
-    group = models.ForeignKey(AcademicGroup, on_delete=models.PROTECT)
+    full_name = models.CharField(max_length=255)
+    speciality = models.ForeignKey(Speciality, on_delete=models.PROTECT)
+    grade = models.IntegerField(choices=GRADE_CHOICES)
+    education_form = models.IntegerField(choices=EDUCATION_FORM_CHOICES)
 
     def __str__(self):
-        return f'{self.last_name} {self.first_name}' + \
-               f' {self.middle_name}' if self.middle_name else ''
+        return f'[{EDUCATION_FORM_CHOICES[self.education_form]}] ' \
+               f'[{GRADE_CHOICES[self.grade]}] ' \
+               f'[{self.speciality}] - ' \
+               f'{self.full_name}'
 
 
 class Mark(models.Model):
@@ -88,4 +74,4 @@ class Mark(models.Model):
     value = models.IntegerField()
 
     def __str__(self):
-        return f'{self.semester} - {self.subject} [{self.value}]'
+        return f'{self.student} [{self.semester} семестр] - {self.subject} [{self.value}]'
