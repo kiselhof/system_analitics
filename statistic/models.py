@@ -2,7 +2,7 @@ from django.db import models
 from model_utils import Choices
 
 __all_ = [
-    'Marks',
+    'Mark',
     'Faculty',
     'Department',
     'Speciality',
@@ -13,6 +13,17 @@ __all_ = [
 GRADE_CHOICES = Choices(
     (1, 'Bachelor', 'Бакалавр'),
     (8, 'Master', 'Магістр'),
+)
+
+SEMESTER_CHOICES = Choices(
+    (1, '1'),
+    (2, '2'),
+    (3, '3'),
+    (4, '4'),
+    (5, '5'),
+    (6, '6'),
+    (7, '7'),
+    (8, '8'),
 )
 
 
@@ -52,13 +63,11 @@ class AcademicGroup(models.Model):
         return None
 
 
-class Marks(models.Model):
-    semester = models.IntegerField()
-    subject = models.CharField(max_length=255)
-    mark = models.IntegerField()
+class Subject(models.Model):
+    name = models.CharField(max_length=255)
 
     def __str__(self):
-        return f'{self.semester} ({self.subject})'
+        return f'{self.name}'
 
 
 class Student(models.Model):
@@ -66,8 +75,17 @@ class Student(models.Model):
     first_name = models.CharField(max_length=255)
     middle_name = models.CharField(max_length=255, blank=True, null=True)
     group = models.ForeignKey(AcademicGroup, on_delete=models.PROTECT)
-    marks = models.ForeignKey(Marks, on_delete=models.PROTECT)  # 05.03.2020 Анька добавила и понеслась
 
     def __str__(self):
         return f'{self.last_name} {self.first_name}' + \
                f' {self.middle_name}' if self.middle_name else ''
+
+
+class Mark(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.PROTECT)
+    semester = models.IntegerField(choices=SEMESTER_CHOICES)
+    subject = models.ForeignKey(Subject, on_delete=models.PROTECT)
+    value = models.IntegerField()
+
+    def __str__(self):
+        return f'{self.semester} - {self.subject} [{self.value}]'

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from statistic.models import Student, AcademicGroup, Department, Speciality, Faculty, Marks
+from statistic.models import Student, AcademicGroup, Department, Speciality, Faculty, Mark, Subject
 
 __all__ = [
     'StudentAdmin',
@@ -17,6 +17,10 @@ class AcademicGroupAdmin(admin.ModelAdmin):
 
 
 class FacultyAdmin(admin.ModelAdmin):
+    pass
+
+
+class SubjectAdmin(admin.ModelAdmin):
     pass
 
 
@@ -37,4 +41,5 @@ admin.site.register(AcademicGroup, AcademicGroupAdmin)
 admin.site.register(Speciality, SpecialityAdmin)
 admin.site.register(Department, DepartmentAdmin)
 admin.site.register(Faculty, FacultyAdmin)
-admin.site.register(Marks, MarksAdmin)
+admin.site.register(Mark, MarksAdmin)
+admin.site.register(Subject, SubjectAdmin)
