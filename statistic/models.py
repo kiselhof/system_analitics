@@ -1,6 +1,8 @@
 from django.db import models
 from model_utils import Choices
 
+from django.core.validators import MaxValueValidator, MinValueValidator
+
 __all_ = [
     'Mark',
     'Faculty',
@@ -71,7 +73,16 @@ class Mark(models.Model):
     student = models.ForeignKey(Student, on_delete=models.PROTECT)
     semester = models.IntegerField(choices=SEMESTER_CHOICES)
     subject = models.ForeignKey(Subject, on_delete=models.PROTECT)
-    value = models.IntegerField()
+    value = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(100)])
 
     def __str__(self):
         return f'{self.student} [{self.semester} семестр] - {self.subject} [{self.value}]'
+
+
+class AdditionalMark(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.PROTECT)
+    semester = models.IntegerField(choices=SEMESTER_CHOICES)
+    value = models.FloatField(default=0, validators=[MinValueValidator(0), MaxValueValidator(4.75)])
+
+    def __str__(self):
+        return f'{self.student} [{self.semester} семестр] - [{self.value}]'
