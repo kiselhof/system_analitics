@@ -1,0 +1,46 @@
+{% extends "admin/change_list.html" %}
+{% load static %}
+
+<!-- Override extrahead to add Chart.js -->
+{% block extrahead %}
+    {{ block.super }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const ctx = document.getElementById('myChart').getContext('2d');
+
+            // Sample data
+
+            new Chart(document.getElementById("myChart"), {
+                type: 'bar',
+                data: {
+                    labels:  ["FX", "F", "E", "D", "C", "B", "A"],
+                    datasets: [
+                        {
+                            label: "Population (millions)",
+                            backgroundColor: ["#f00", "#f00","#f33","#f66","#f69","#0f0", "#00f"],
+                            data: {{ chart_data | safe }}
+                        }
+                    ]
+                },
+                options: {
+                    legend: { display: false },
+                    title: {
+                        display: true,
+                        text: 'Predicted world population (millions) in 2050'
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+    <!-- Render our chart -->
+    <div style="width: 80%;">
+        <canvas style="margin-bottom: 30px; width: 60%; height: 50%;" id="myChart"></canvas>
+    </div>
+    <!-- Render the rest of the ChangeList view -->
+    {{ block.super }}
+{% endblock %}

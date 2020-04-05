@@ -1,4 +1,9 @@
+import json
+
 from django.contrib import admin
+from django.core.serializers.json import DjangoJSONEncoder
+from django.db.models import Avg, Count
+
 from statistic.models import Student, Speciality, Faculty, Mark, Subject, AdditionalMark
 
 
@@ -14,6 +19,20 @@ class StudentAdmin(admin.ModelAdmin):
     search_fields = ['full_name']
     list_filter = ['education_form', 'grade', 'speciality']
     inlines = (MarkInlineAdmin, AdditionalMarkInlineAdmin)
+
+    def changelist_view(self, request, extra_context=None):
+        choices = [0, 35, 60, 64, 74, 82, 90, 100]
+        pairs = list(zip(choices[::], choices[1::]))
+        chart_data = [
+            self.get_changelist_instance(request).queryset.annotate(average_mark=Avg('mark__value')).filter(average_mark__gte=left).filter(average_mark__lt=right).count() for left, right in pairs
+        ]
+
+        # Serialize and attach the chart data to the template context
+        as_json = json.dumps(list(chart_data), cls=DjangoJSONEncoder)
+        extra_context = extra_context or {"chart_data": as_json}
+
+        # Call the superclass changelist_view to render the page
+        return super().changelist_view(request, extra_context=extra_context)
 
 
 class SpecialityInlineAdmin(admin.TabularInline):
